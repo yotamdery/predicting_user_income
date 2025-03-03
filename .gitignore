@@ -1,0 +1,9 @@
+# Folders
+__pycache__/
+.venv/
+
+# Data
+*.csv
+
+*.pyc
+*.vscode
