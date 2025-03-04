@@ -7,7 +7,7 @@ def plot_corr_with_label(df: pd.DataFrame, target_label: pd.Series, top_n_featur
     # Compute correlation matrix with the target variable
     correlation_matrix = df.copy()
     correlation_matrix["target"] = target_label  # Add target for correlation check
-    corr_with_target = np.round(correlation_matrix.corr()["target"].drop("target").sort_values(ascending=False),2).head(10)
+    corr_with_target = np.round(correlation_matrix.corr()["target"].drop("target").sort_values(ascending=False),2).head(top_n_features)
 
     # Create correlation heatmap using Plotly
     fig = ff.create_annotated_heatmap(

@@ -3,6 +3,37 @@ import pandas as pd
 from scipy.stats import skew
 from typing import Tuple
 
+
+def get_outliers_top_n_features(df, target_label, top_n_features: int=20) -> pd.DataFrame:
+    """ Returns a DF with description of how many outliers are the for each feature, from the top N correlated features (with the label)"""
+    top_n_features = get_corr_top_n_features(df, target_label, top_n_features)
+    top_n_features_names = list(top_n_features.index )
+    # Compute IQR for each feature
+    outlier_counts = {}
+
+    for feature in top_n_features_names:
+        Q1 = df[feature].quantile(0.25)
+        Q3 = df[feature].quantile(0.75)
+        IQR = Q3 - Q1
+        # Define outliers as values below Q1 - 1.5*IQR or above Q3 + 1.5*IQR
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        outliers = ((df[feature] < lower_bound) | (df[feature] > upper_bound)).sum()
+
+        outlier_counts[feature] = outliers
+
+    # Convert outlier counts to DataFrame for better interpretation
+    outlier_df = pd.DataFrame(list(outlier_counts.items()), columns=["Feature", "Outlier Count"]).sort_values(by="Outlier Count", ascending=False)
+    outlier_df = outlier_df.reset_index(drop=True)
+    # Returns the number of outliers detected in each feature
+    return outlier_df
+
+def get_corr_top_n_features(df, target_label, top_n_features: int=20) -> pd.DataFrame:
+    correlation_matrix = df.copy()
+    correlation_matrix["target"] = target_label  # Add target for correlation check
+    corr_with_target = np.round(correlation_matrix.corr()["target"].drop("target").sort_values(ascending=False),2).head(top_n_features)
+    return corr_with_target
+
 def identify_highly_correlated_features(df: pd.DataFrame) -> pd.DataFrame:
     # Compute the correlation matrix for feature selection
     feature_corr_matrix = df.corr()
@@ -21,6 +52,7 @@ def identify_highly_correlated_features(df: pd.DataFrame) -> pd.DataFrame:
 
     # Output the highly correlated feature pairs
     high_corr_df = high_corr_df.sort_values(by='Correlation', ascending=False)
+    high_corr_df = high_corr_df.reset_index(drop=True)
     return high_corr_df
     
 
