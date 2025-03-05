@@ -48,11 +48,12 @@ def identify_highly_correlated_features(df: pd.DataFrame) -> pd.DataFrame:
                 high_corr_pairs.append((col, idx, feature_corr_matrix.loc[idx, col]))
 
     # Convert to a DataFrame for easier interpretation
-    high_corr_df = pd.DataFrame(high_corr_pairs, columns=["Feature 1", "Feature 2", "Correlation"]).drop_duplicates()
+    high_corr_df = pd.DataFrame(high_corr_pairs, columns=["Feature 1", "Feature 2", "Correlation"])
 
     # Output the highly correlated feature pairs
     high_corr_df = high_corr_df.sort_values(by='Correlation', ascending=False)
     high_corr_df = high_corr_df.reset_index(drop=True)
+    high_corr_df = high_corr_df.drop_duplicates()
     return high_corr_df
     
 
